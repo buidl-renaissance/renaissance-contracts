@@ -15,7 +15,7 @@ governance and identity protocols for sustainable communities
 
 ## Protocols
 
-1. Decentralized Identity
+1. Decentralized Identity([LSP contracts](https://github.com/lukso-network/lsp-smart-contracts/))
 2. Voting and Governance
 3. Tokenomics for Staking and Yielding
 
