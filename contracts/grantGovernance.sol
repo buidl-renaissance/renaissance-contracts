@@ -40,9 +40,9 @@ contract GrantGovernance is Ownable{
     }
 
     enum CitizenStatus{
-       voter,
-       nominator,
-       ambassador
+       VOTER,
+       NOMINATOR,
+       AMBASSADOR
     }
 
     struct Citizen {
@@ -89,7 +89,7 @@ contract GrantGovernance is Ownable{
         emit Voted(_proposalId, msg.sender, _inFavor);
     }
 
-    function executeProposal (_proposalId) public {
+    function executeProposal (uint256 _proposalId) public {
 
         require (proposalId < proposals.length, "Invalid proposal Id")
         require (!proposals[proposalId].queued, "Proposal is queued")
@@ -101,7 +101,16 @@ contract GrantGovernance is Ownable{
         event ProposalExecuted (_proposalId)
     }
 
-    function stakeTokens () {
+    function stakeTokens (uint256 _proposalId, uint256 _amount) public{
+
+        require (citizens[msg.sender].isActive, "You aren't an active citizen")
+        require (!proposals[proposalId].queued, "Proposal is queued")
+
+        require (!proposals[proposalId].revoked, "Proposal is revoked ")
+        require (!proposals[proposalId].executed, "Proposal is already executed ")
+
+        citizens[msg.sender].tokensStaked += _amount
+        citizens[msg.sender].votingPower += _amount;
         
-    }
+    } 
 }
