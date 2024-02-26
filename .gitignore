@@ -48,6 +48,9 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# Truffle files
+.gitkeep
+
 # Optional npm cache directory
 .npm
 
