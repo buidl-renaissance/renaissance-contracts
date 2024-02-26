@@ -59,9 +59,10 @@ contract GrantGovernance is Ownable{
 
     Proposal[] public proposals;
 
-    event ProposalCreated (uint256 proposalId, string description, address creator)
-    event Voted (uint256 proposalId, address msg.sender, bool inFavor) 
-    event ProposalExecuted (uint256 proposalId)
+    event ProposalCreated (uint256 indexed proposalId, string description, address creator)
+    event Voted (uint256 indexed proposalId, address indexed voter, bool inFavor) 
+    event ProposalExecuted (uint256 indexed proposalId)
+    event TokensStaked (uint256 indexed proposalId, address indexed staker, uint256 amount)
 
     function createProposal (string _description) public returns (uint256){
         uint proposalId = proposals.length
@@ -97,13 +98,18 @@ contract GrantGovernance is Ownable{
         require (!proposals[proposalId].revoked, "Proposal is revoked ")
         require (!proposals[proposalId].executed, "Proposal is executed ")
 
-        proposals[_proposalId].executed = true
-        event ProposalExecuted (_proposalId)
+        Proposal storage proposal = proposals[_proposalId]
+
+        if (proposal.forVotes > proposal.againstVotes){
+            proposal.executed = true
+        }
+
+        emit ProposalExecuted (_proposalId, proposal.executed)
     }
 
     function stakeTokens (uint256 _proposalId, uint256 _amount) public{
 
-        require (citizens[msg.sender].isActive, "You aren't an active citizen")
+        require (_amount > 0, "Amount should be greater than 0")
         require (!proposals[proposalId].queued, "Proposal is queued")
 
         require (!proposals[proposalId].revoked, "Proposal is revoked ")
@@ -111,6 +117,9 @@ contract GrantGovernance is Ownable{
 
         citizens[msg.sender].tokensStaked += _amount
         citizens[msg.sender].votingPower += _amount;
+        citizens[msg.sender].lastStakedTimestamp = block.timestamp;
+        citizens[msg.sender].isActive = true;
         
+        emit TokensStaked (_proposalId, msg.sender, _amount)
     } 
 }
