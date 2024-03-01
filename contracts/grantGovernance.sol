@@ -55,7 +55,7 @@ contract GrantGovernance is Ownable {
     // every proposal will have map of stakes for citizens that have staked tokens
     mapping (uint256 => mapping (address => StakePerCitizen)) public stakePerCitizen;
 
-    Proposals[] public proposals;
+    Proposals[] public  proposals;
 
     event ProposalCreated (uint256 indexed proposalId, string description, address creator);
     event Voted (uint256 indexed proposalId, address indexed voter, bool inFavor);
@@ -67,6 +67,10 @@ contract GrantGovernance is Ownable {
         proposals.push(Proposals(proposalId, _description, msg.sender, 0, 0, false, false, false ));
         emit ProposalCreated (proposalId, _description, msg.sender);
         return proposalId;
+    }
+
+    function getProposals () public view returns (Proposals [] memory){
+        return proposals;
     }
 
     function vote  (uint256 _proposalId, bool _inFavor) public  {
