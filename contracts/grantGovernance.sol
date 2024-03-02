@@ -19,7 +19,11 @@ contract GrantGovernance is Ownable {
 
     struct Proposals{
         uint256 Id;
+        string title;
         string description;
+        string category;
+        string body;
+        string estBudget;
         address creator;
         uint256 forVotes;
         uint256 againstVotes;
@@ -57,23 +61,27 @@ contract GrantGovernance is Ownable {
 
     Proposals[] public  proposals;
 
-    event ProposalCreated (uint256 indexed proposalId, string description, address creator);
+    event ProposalCreated (uint256 indexed proposalId, string title, address creator);
     event Voted (uint256 indexed proposalId, address indexed voter, bool inFavor);
     event ProposalExecuted (uint256 indexed proposalId, bool executed);
     event TokensStaked (uint256 indexed proposalId, address indexed staker, uint256 amount);
 
-    function createProposal (string memory _description) public returns (uint256){
+    function createProposal (string memory _title, string memory _description, string memory _category, string memory _body, string memory _estBudget) public returns (uint256){
         uint proposalId = proposals.length;
-        proposals.push(Proposals(proposalId, _description, msg.sender, 0, 0, false, false, false ));
-        emit ProposalCreated (proposalId, _description, msg.sender);
+        proposals.push(Proposals(proposalId, _title, _description, _category, _body, _estBudget, msg.sender, 0, 0, false, false, false ));
+        emit ProposalCreated (proposalId, _title, msg.sender);
         return proposalId;
+    }
+
+    function getProposal (uint256 _proposalId) public view returns (Proposals memory){
+        return proposals[_proposalId];
     }
 
     function getProposals () public view returns (Proposals [] memory){
         return proposals;
     }
 
-    function vote  (uint256 _proposalId, bool _inFavor) public  {
+    function vote (uint256 _proposalId, bool _inFavor) public  {
         
         require (citizens[msg.sender].isActive, "You aren't an active citizen");
         require (_proposalId < proposals.length, "Invalid proposal Id");
