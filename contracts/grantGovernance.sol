@@ -27,10 +27,9 @@ contract GrantGovernance is Ownable {
         address creator;
         uint256 forVotes;
         uint256 againstVotes;
+        uint256 tokensStaked;
         bool executed;
         bool revoked;
-        bool queued;
-
     }
 
     enum CitizenStatus{
@@ -41,7 +40,6 @@ contract GrantGovernance is Ownable {
     }
 
     struct Citizen {
-
         bool isActive;
         CitizenStatus status;
         uint256 votingPower;
@@ -68,7 +66,7 @@ contract GrantGovernance is Ownable {
 
     function createProposal (string memory _title, string memory _description, string memory _category, string memory _body, string memory _estBudget) public returns (uint256){
         uint proposalId = proposals.length;
-        proposals.push(Proposals(proposalId, _title, _description, _category, _body, _estBudget, msg.sender, 0, 0, false, false, false ));
+        proposals.push(Proposals(proposalId, _title, _description, _category, _body, _estBudget, msg.sender, 0, 0, 0, false, false ));
         emit ProposalCreated (proposalId, _title, msg.sender);
         return proposalId;
     }
@@ -83,9 +81,7 @@ contract GrantGovernance is Ownable {
 
     function vote (uint256 _proposalId, bool _inFavor) public  {
         
-        require (citizens[msg.sender].isActive, "You aren't an active citizen");
         require (_proposalId < proposals.length, "Invalid proposal Id");
-        require (!proposals[_proposalId].queued, "Proposal is queued");
 
         require (!proposals[_proposalId].revoked && !proposals[_proposalId].executed, "Proposal is revoked or already executed");
 
@@ -103,7 +99,6 @@ contract GrantGovernance is Ownable {
     function executeProposal (uint256 _proposalId) public {
 
         require (_proposalId < proposals.length, "Invalid proposal Id");
-        require (!proposals[_proposalId].queued, "Proposal is queued");
 
         require (!proposals[_proposalId].revoked, "Proposal is revoked ");
         require (!proposals[_proposalId].executed, "Proposal is executed ");
@@ -120,7 +115,6 @@ contract GrantGovernance is Ownable {
     function stakeTokens (uint256 _proposalId, uint256 _amount) public{
 
         require (_amount > 0, "Amount should be greater than 0");
-        require (!proposals[_proposalId].queued, "Proposal is queued");
 
         require (!proposals[_proposalId].revoked, "Proposal is revoked ");
         require (!proposals[_proposalId].executed, "Proposal is already executed ");
@@ -129,6 +123,8 @@ contract GrantGovernance is Ownable {
         stakePerCitizen[_proposalId][msg.sender].tokensStaked += _amount;
         stakePerCitizen[_proposalId][msg.sender].lastStakedTimestamp = block.timestamp;
         citizens[msg.sender].isActive = true;
+
+        proposals[_proposalId].tokensStaked += _amount;
         
         emit TokensStaked (_proposalId, msg.sender, _amount);
     }
