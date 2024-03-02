@@ -1,5 +1,5 @@
 const GrantGovernance = artifacts.require("GrantGovernance")
-
+const NominateAmbassador = artifacts.require("AmbassadorNomination")
 // TODO testnet accounts
 module.exports = function(deployer, network, accounts) {
   if (network === "main") {
@@ -10,6 +10,7 @@ module.exports = function(deployer, network, accounts) {
   console.log(accounts)
   console.log("-----------------------------")
 
-  return deployer.deploy(GrantGovernance)
-  
+  deployer.deploy(NominateAmbassador).then(function(){
+    return deployer.deploy(GrantGovernance)
+  })
 }
